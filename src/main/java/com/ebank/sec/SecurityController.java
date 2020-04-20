@@ -24,21 +24,7 @@ private ClientMetier clientMetier;
 	public String login() {
 		return "login";
 	}
-	@RequestMapping(value="/ConsulterClient",method=RequestMethod.POST)
-	public String consulterClient(Model model,String nomUtlisateur,String motDePasse) {
-		
-		try{
-	    Client cl=clientMetier.consulterClient(nomUtlisateur,motDePasse);
-	    
-	    model.addAttribute("client",cl);
-		
-		}
-		catch(Exception e) {
-			model.addAttribute("exception", e);
-		}
-		return "espaceClient";
-		
-	}
+	
 	
 
 }

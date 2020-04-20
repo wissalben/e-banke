@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 import com.ebank.entities.Agent;
+import com.ebank.entities.Client;
 import com.ebank.entities.Compte;
 import com.ebank.entities.Operation;
 import com.ebank.entities.RechargeTelephonique;
@@ -30,40 +31,55 @@ private ClientMetier clientMetier;
 		return "espaceClient";
 	}
 	
-	@RequestMapping(value ="/consulterConseiller")
-	public String consulterCon(Model model,Long numeroClient) {
+	@RequestMapping(value ="/virement")
+	public String operation(Model model,String pin) {
+		model.addAttribute("pin", pin);
+		return "virement";
+	}
+	
+	@RequestMapping(value ="/rechargeTelephonique")
+	public String recharge(Model model,String pin) {
+		model.addAttribute("pin", pin);
+		return "RechargeTelephonique";
+	}
+	
+	@RequestMapping(value ="/ConsulterClient")
+	public String consulterCon(Model model,String nomUtilisateur,String motDePasse) {
+		model.addAttribute("nomUtilisateur",nomUtilisateur);
+		model.addAttribute("motDePasse",motDePasse);
 		
 		try{
-	    Agent ag=clientMetier.consulterAgent(numeroClient);
+	   Client cl=clientMetier.consulterClient(nomUtilisateur, motDePasse);
 		
-	    model.addAttribute("agent",ag);
+	    model.addAttribute("client",cl);
 	   
 		
 		}
 		catch(Exception e) {
 			model.addAttribute("exception", e);
 		}
-		return "consulterConseiller";
+		return "espaceClient";
 	}
 	
 	@RequestMapping(value ="/consulterCompte")
 	public String consulter(Model model,String pin,@RequestParam(name="page",defaultValue="0")int page,
 			@RequestParam(name="size",defaultValue="4")int size) {
-		model.addAttribute("pin",pin);
+		
 		try{
 	    Compte cp=clientMetier.consulterCompte(pin);
-	    
+	    model.addAttribute("pin",pin);
+	    model.addAttribute("compte",cp);
 		Page<Operation> pageVirements=clientMetier.listOperation_Virement_(pin, page, size);
 	    model.addAttribute("listVirements",pageVirements.getContent());
 		int[] pagesV=new int[pageVirements.getTotalPages()];
 		model.addAttribute("pagesV", pagesV);
 		
 		Page<RechargeTelephonique> pageRecharges=clientMetier.listOperation_Recharge_(pin, page, size);
-	    model.addAttribute("listRecahrages",pageRecharges.getContent());
+	    model.addAttribute("listRecharges",pageRecharges.getContent());
 		int[] pagesR=new int[pageRecharges.getTotalPages()];
 		model.addAttribute("pagesR", pagesR);
 		
-	    model.addAttribute("compte",cp);
+
 	
 		
 		}
@@ -73,43 +89,45 @@ private ClientMetier clientMetier;
 		return "consulterCompte";
 		
 	}
+	
+	
+	
+	
 	@RequestMapping(value="/saveOperation",method=RequestMethod.POST)
-	public String saveOperation(Model model,String typeOperation,String pin,BigDecimal montant,String codeCompte2) {
+	public String saveOperation(Model model,String pin,BigDecimal montant,Long codeCompte2) {
 		try{
 			
-		  if(typeOperation.equals("VIREMENT")) {
+		  
 			  clientMetier.virement(pin, codeCompte2, montant);
-		}
+		
 		}
 		catch(Exception e) {
 			model.addAttribute("error",e);
 		}
-		return "redirect:/consulterCompte?codeCompte="+pin;
+		return "redirect:/consulterCompte?pin="+pin;
 	}
 	
 	@RequestMapping(value="/saveRecharge",method=RequestMethod.POST)
-	public String saveRecharge(Model model,String typeRecharge,String pin,BigDecimal montant) {
-		try{
-			
-		  if(typeRecharge.equals("INWI")) {
-			 
-			  clientMetier.virement(pin, "123", montant);
-		}
+	public String saveRecharge(Model model,String pin,BigDecimal montant,String numeroTelephone,String typeRecharge) {
+		try {
+			if(typeRecharge.equals("inwi")) {
+				 clientMetier.rechargeTelephonique(pin,(long)1,numeroTelephone,montant);
+			}
+			if(typeRecharge.equals("orange")) {
+				 clientMetier.rechargeTelephonique(pin,(long)2,numeroTelephone,montant);
+		                                      }
 		  
-		  if(typeRecharge.equals("ORANGE")) {
-				 
-			  clientMetier.virement(pin, "456", montant);
+		  if(typeRecharge.equals("marocTelecome")) {
+			  clientMetier.rechargeTelephonique(pin,(long)3,numeroTelephone,montant);
 		}
-		  if(typeRecharge.equals("MAROCTELE")) {
-				 
-			  clientMetier.virement(pin, "789", montant);
-		}
+		
+			
+		
 		}
 		catch(Exception e) {
 			model.addAttribute("error",e);
 		}
-		return "redirect:/consulterCompte?codeCompte="+pin;
+		return "redirect:/consulterCompte?pin="+pin;
 	}
 }
-	
 

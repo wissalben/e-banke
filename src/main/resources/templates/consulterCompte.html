@@ -31,8 +31,8 @@
         </nav>
     </header>
     <br/>
-    
-    <section layout:fragment="content">
+   
+   <div  th:if="${compte}"> <section layout:fragment="content">
    
      <div class="row">
   <div class="col-sm-6"  >
@@ -43,23 +43,21 @@
   
   <div>
    <label>Code Compte:</label>
-   <label th:text="${compte.codeCompte}"></label>
+   <label th:text="${compte== null ? '' : compte.codeCompte}"></label>
  </div>
  <div>
    <label> Date creation:</label>
-   <label th:text="${compte.codeCompte}"></label>
+   <label th:text="${compte== null ? '' : compte.dateCreation}"></label>
    </div>
-   <div>
-   <label>PIN :</label>
-   <label th:text="${compte.codeCompte}"></label>
-   </div>
+   
    <div>
    <label>Client :</label>
-   <label th:text="${ compte.codeCompte}"></label>
+   <label th:text="${ compte== null ? '' : compte.client.nom}"></label>
+   <label th:text="${compte== null ? '' : compte.client.prenom}"></label>
    </div>
    <div>
    <label>Solde :</label>
-   <label th:text="${compte== null ? '' : compte.codeCompte}"></label>
+   <label th:text="${compte== null ? '' : compte.solde}"></label>
    </div>
  
     </div>
@@ -75,26 +73,37 @@
    <table class="table">
     <thead class="thead-dark">
    <tr>
-   <th>Num</th>
-   <th>Type</th>
+   <th>Numero operation</th>
+   <th>type Operation</th>
    <th>Date</th>
    <th>Montant</th>
+   <th>Compte destinataire</th>
    </tr>
     </thead>
     <tbody>
    <tr th:each="v:${listVirements}">
-   <td th:text="${v.numeroOperation}"></td>
-   <td th:text="${v.class.simpleName}"></td>
+   <td  th:text="${v.numeroOperation}"></td>
+    <td th:text="${v.class.simpleName}"></td>
    <td th:text="${v.dateOperation}"></td>
     <td th:text="${v.montant}"></td>
+    <td th:text="${v.codeCompteDestinataire==null ? '' :v.codeCompteDestinataire}"></td>
    
    </tr>
    </tbody>
    </table>
+
    
+     <a th:href="@{/virement(pin=${pin})}">effectuer un virement</a>
+       
+        
+</div>
+   
+</div>
+
    </div>
-  </div>
-  </div>
+   
+  
+  
 
    <div class="col-sm-6" >
     <div class="card">
@@ -103,23 +112,26 @@
    <table class="table">
     <thead class="thead-dark">
    <tr>
-
+   <th>numero Recharge</th>
    <th>telephone</th>
    <th>Date</th>
    <th>Montant</th>
+   <th>Operateur</th>
    </tr>
     </thead>
     <tbody>
    <tr th:each="r:${listRecharges}">
- 
+   <td th:text="${r.numeroRechargeTelephonique}"></td>
    <td th:text="${r.numeroTelephone}"></td>
    <td th:text="${r.dateRecharge}"></td>
     <td th:text="${r.montant}"></td>
+      <td th:text="${r.operateur==null ? '' : r.operateur.nomOperateur}"></td>
    
    </tr>
    </tbody>
    </table>
  
+     <a th:href="@{/rechargeTelephonique(pin=${pin})}">faire une recharge telephonique</a>
   </div>
     </div>
   </div>
@@ -128,7 +140,11 @@
 
   
   
-  </section>
+  </section></div>
+  <div th:unless="${compte}">
+   Compte untrouvable ,essayer un code Pin valide.
+</div>
+ 
    <footer class="page-footer font-small blue pt-4">
         <div class="footer-copyright text-bottom py-3">© 2020 Copyright:
             <a href="#"> MyBank@hotmail.com</a>

@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<form th:action="@{/ConsulterClient}" method="post" >
+<form th:action="@{/ConsulterClient}" method="get" >
   <div class="form-group">
     <label for="nomUtilisateur">Username:</label>
     <input type="text" class="form-control"  name="nomUtilisateur"  th:value="${nomUtilisateur}" placeholder="username">

@@ -11,6 +11,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface RechargeTelephoniqueRepository extends JpaRepository<RechargeTelephonique, Long> {
 	
-	@Query("select r from RechargeTelephonique r where r.compte.codeCompte=:x order by r.dateRecharge desc")
+	@Query("select r from RechargeTelephonique r where r.compte.pin=:x order by r.dateRecharge desc")
 	public Page<RechargeTelephonique> listRecharge(@Param("x")String codeCpte,Pageable pageable);
 }

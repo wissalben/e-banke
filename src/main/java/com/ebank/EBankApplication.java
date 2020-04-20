@@ -52,9 +52,9 @@ public class EBankApplication /*implements CommandLineRunner*/{
         Operation operation = operationRepository.save(new Versement(new Date(), new BigDecimal(150), compte2));
         Operation operation2 = operationRepository.save(new Retrait(new Date(), new BigDecimal(170), compte2));
         Operation operation3 = operationRepository.save(new Virement(new Date(), new BigDecimal(150), compte, compte2.getCodeCompte()));
-        Operateur operateur1=operateurRepository.save(new  Operateur("123", "inwi", "fgdidfgyusfd"));
-        Operateur operateur2=operateurRepository.save(new  Operateur("456", "orange", "fgdidfgyusfd"));
-        Operateur operateur3=operateurRepository.save(new  Operateur("678", "maroc telecome", "uisfldiuf"));
+        Operateur operateur1=operateurRepository.save(new  Operateur( "inwi", "fgdidfgyusfd"));
+        Operateur operateur2=operateurRepository.save(new  Operateur("orange", "fgdidfgyusfd"));
+        Operateur operateur3=operateurRepository.save(new  Operateur("maroc telecome", "uisfldiuf"));
     }
   */
 }

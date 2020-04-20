@@ -16,16 +16,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ebank.dao.ClientRepository;
 import com.ebank.dao.CompteRepository;
+import com.ebank.dao.OperateurRepository;
 import com.ebank.dao.OperationRepository;
 import com.ebank.dao.RechargeTelephoniqueRepository;
 import com.ebank.entities.Agent;
 import com.ebank.entities.Client;
 import com.ebank.entities.Compte;
 import com.ebank.entities.CompteCourant;
+import com.ebank.entities.Operateur;
 import com.ebank.entities.Operation;
 import com.ebank.entities.RechargeTelephonique;
 import com.ebank.entities.Retrait;
 import com.ebank.entities.Versement;
+import com.ebank.entities.Virement;
 
 @Service
 @Transactional
@@ -41,11 +44,12 @@ public class ClientMetierImp implements ClientMetier {
 	@Autowired
 	private RechargeTelephoniqueRepository rechargeTelephoniqueRepository;
 	
+	@Autowired
+	private OperateurRepository operateurRepository;
 	
 	public void verser(String codeCpte, BigDecimal montant) {
 		Compte cp=consulterCompte(codeCpte);
 		Versement v=new Versement(new Date(),montant,cp);
-		operationRepository.save(v);
 		cp.setSolde((cp.getSolde()).add(montant));
 		compteRepository.save(cp);
 		
@@ -62,7 +66,7 @@ public class ClientMetierImp implements ClientMetier {
 		if(((cp.getSolde()).add(facilitesCaisse)).compareTo(montant)< 0)
 			 throw new RuntimeException("Solde insuffisant");
 		
-		operationRepository.save(r);
+		
 		cp.setSolde((cp.getSolde()).subtract(montant));
 		compteRepository.save(cp);
 		
@@ -78,16 +82,51 @@ public class ClientMetierImp implements ClientMetier {
 	
 
 	
-	public void virement(String codeCpte, String codeCpte2, BigDecimal montant) {
-		if(codeCpte.equals(codeCpte2))
-			throw new RuntimeException("impossible de virer sur le meme compte !");
+	public void virement(String codeCpte, Long codeCpte2, BigDecimal montant) {
 		
 		
-		retirer(codeCpte,montant);
-		verser(codeCpte2,montant);
+		
+		Compte cp=consulterCompte(codeCpte);
+		Compte cp2=consulterCompteDestinataire(codeCpte2);
+		if((cp.getClient()).equals(cp2.getClient())) throw new RuntimeException("virement nom effectuer");
+		Virement vi=new Virement(new Date(),montant,cp,codeCpte2);
+	    BigDecimal facilitesCaisse=new BigDecimal(0);;
+		if(cp instanceof CompteCourant) 
+			facilitesCaisse=((CompteCourant) cp).getDecouvert();
+			
+		if((montant).compareTo((cp.getSolde()).add(facilitesCaisse))>0)
+		{ throw new RuntimeException("Solde insuffisant");}
+		
+		else{cp.setSolde((cp.getSolde()).subtract(montant));}
+		
+		compteRepository.save(cp);
+		
+		cp2.setSolde((cp2.getSolde()).add(montant));
+		compteRepository.save(cp2);
+		
+		
+		operationRepository.save(vi);
+		
+		
 		
 	}
+public Compte consulterCompteDestinataire(Long codeCpte) {
+		 
+		
+		Compte cp=compteRepository.findById(codeCpte).orElse(null);
+		if(cp==null) throw new RuntimeException("Compte Introuvable");
+		
+		return cp;
+	}
 
+public Operateur consulterOperateur(Long codeCpte) {
+	 
+	
+	Operateur op=operateurRepository.findById(codeCpte).orElse(null);
+	if(op==null) throw new RuntimeException("operateur Introuvable");
+	
+	return op;
+}
 	
 	
 	
@@ -95,21 +134,30 @@ public class ClientMetierImp implements ClientMetier {
 	
 	
 	@Override
-	public void rechargeTelephonique(String codeCompte,String codeOperateur, String numeroTelephone, BigDecimal montant) {
-		retirer(codeCompte,montant);
-		verser(codeOperateur,montant);
+	public void rechargeTelephonique(String pin,Long codeOperateur, String numeroTelephone, BigDecimal montant) {
+		
+		Compte cp=consulterCompte(pin);
+		Operateur op=consulterOperateur(codeOperateur);
+		RechargeTelephonique re=new RechargeTelephonique(montant,numeroTelephone,new Date(),cp,op);
+	    BigDecimal facilitesCaisse=new BigDecimal(0);;
+		if(cp instanceof CompteCourant) 
+			facilitesCaisse=((CompteCourant) cp).getDecouvert();
+			
+		if((montant).compareTo((cp.getSolde()).add(facilitesCaisse))>0)
+		{ throw new RuntimeException("Solde insuffisant");}
+		
+		else{cp.setSolde((cp.getSolde()).subtract(montant));}
+		
+		compteRepository.save(cp);
+		operateurRepository.save(op);
+		
+		
+		
+		rechargeTelephoniqueRepository.save(re);
+		
 		
 	}
-	@Override
-	public Agent consulterAgent(Long numeroClient) {
-		Optional<Client> cl=clientRepository.findById(numeroClient);
-		Agent ag= new Agent();
-		if(!ag.equals(cl.get().getAgent())) throw new RuntimeException("Agent introuvable");
-		return ag;
 	
-
-		
-	}
 
 	@Override
 	public Page<Operation> listOperation_Virement_(String codeCpte, Integer page, Integer size) {
@@ -129,6 +177,7 @@ public class ClientMetierImp implements ClientMetier {
 		if(!motDePasse.equals(cl.getMotDePasse())) throw new RuntimeException("Client introuvable");
 		return cl;
 	}
+
 
    
 	

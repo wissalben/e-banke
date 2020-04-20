@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "TypeRecharge", discriminatorType = DiscriminatorType.STRING, length = 10)
+
 @Table(name="rechargeTelephonique")
 
 public class RechargeTelephonique {
@@ -30,7 +30,11 @@ public class RechargeTelephonique {
 	@ManyToOne
     @JoinColumn(name = "Compte")
     private Compte compte;
-
+	
+	@ManyToOne
+    @JoinColumn(name = "Operateur")
+    private Operateur operateur;
+	
 	public BigDecimal getMontant() {
 		return montant;
 	}
@@ -72,21 +76,32 @@ public class RechargeTelephonique {
 	public void setNumeroRechargeTelephonique(Long numeroRechargeTelephonique) {
 		this.numeroRechargeTelephonique = numeroRechargeTelephonique;
 	}
+	
 
-	public RechargeTelephonique(Long numeroRechargeTelephonique, BigDecimal montant ,
-			Date dateRecharge, Compte compte) {
+	public Operateur getOperateur() {
+		return operateur;
+	}
+
+	public void setOperateur(Operateur operateur) {
+		this.operateur = operateur;
+	}
+
+	public RechargeTelephonique(BigDecimal montant, String numeroTelephone, Date dateRecharge,Compte compte,Operateur operateur) {
 		super();
-		this.numeroRechargeTelephonique = numeroRechargeTelephonique;
+		this.compte=compte;
 		this.montant = montant;
-		
+		this.numeroTelephone = numeroTelephone;
 		this.dateRecharge = dateRecharge;
-		this.compte = compte;
+		this.operateur=operateur;
+		
 	}
 
 	public RechargeTelephonique() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+
+	
 
 	
 	

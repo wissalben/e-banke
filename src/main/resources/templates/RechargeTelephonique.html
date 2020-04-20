@@ -32,54 +32,50 @@
     </header>
     <br/>
     <section layout:fragment="content">
-   
-  <div class="col-sm-6" >
-  
-    <div class="card">
-      <div class="card-header" th:if="${agent}">Mon conseiller</div>
+     <div class="card">
+      <div class="card-header" > Recharge telephonique</div>
   <div class="card-body">
   
-  <div>
+   <form th:action="@{/saveRecharge}" method="post">
+   <div>
+   <label>Choisissez votre operateur</label>
+   <input type="hidden" name="pin"  th:value="${pin}">
    
-   <label th:text="${agent.nom}"></label>
-    <label th:text="${agent.prenom}"></label>
    </div>
-   <div>
-   
-   <label th:text="${agent.telephone}"></label>
-   </div>
-   <div>
-   <label th:text="${agent.fixe}"></label>
-   </div>
-   <div>
+   <div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="typeRecharge"  value="inwi">
+  <label class="form-check-label" for="inlineRadio1">inwi</label>
+</div>
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="typeRecharge"  value="orange">
+  <label class="form-check-label" for="inlineRadio2">orange</label>
+</div>
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="typeRecharge"  value="marocTelecome" 
+ >
+  <label class="form-check-label" for="inlineRadio3">maroc Telecome</label>
+</div>
   
-   <label th:text="${agent.fax}"></label>
-   </div>
-   <div>
+
+<div class="form-group"  >
+<label class="control-label">numero Telephone</label>
+<input type="text" name="numeroTelephone" class="form-
+control"></input>
+</div>
+<div class="form-group">
+<label class="control-label">Montant:</label>
+<input type="text" name="montant" class="form-
+control"></input>
+</div>
+
+<div>
+<button class="btn btn-primary" type="submit"
+name="saveOp">Save</button>
+</div>
+</form>
+</div>
    
-   <label th:text="${agent.email}"></label>
-   </div>
-   
-   <div>
-   <label>Decouvert :</label>
-   
-   </div>
-   
-   <div >
-   <label>Mon agence :</label>
-   <label th:text="${agent.agence.adresse}"></label>
-   </div>
-   
-  </div>
-    </div>
-  </div>
-  </div>
-  </section>
-   <footer class="page-footer font-small blue pt-4">
-        <div class="footer-copyright text-bottom py-3">© 2020 Copyright:
-            <a href="#"> MyBank@hotmail.com</a>
-        </div>
-    </footer>
-</body>
-</html>
-  
+</div>
+</section>
+    </body>
+    </html>
